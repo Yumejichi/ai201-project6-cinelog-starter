@@ -76,8 +76,8 @@ Adds a watchlist to CineLog so users can save films they want to watch later, se
 
 ### Design decisions
 
-- **Default visibility (Comment 4):** Watchlist entries default to `public=True`. See Comment 4 above for the full reasoning and tradeoff.
-- **Sort order (Comment 5):** `get_watchlist()` sorts by `date_added` descending (most recently added film first), rather than alphabetically. See Comment 5 above for the full reasoning.
+- **Default visibility (Comment 4):** Watchlist entries default to `public=True` — treating CineLog as a social film-logging app where sharing what you plan to watch is the norm, rather than a private log locked down by default. See Comment 4 above for the full reasoning and tradeoff.
+- **Sort order (Comment 5):** `get_watchlist()` sorts by `date_added` descending (most recently added film first) instead of alphabetically, since a watchlist functions as a queue and users care most about what they just decided they want to watch. See Comment 5 above for the full reasoning.
 
 ### How to test this manually
 
