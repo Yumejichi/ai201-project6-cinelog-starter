@@ -65,6 +65,12 @@ Merged .gitignore by combining both lists. Then manually re-added WatchlistEntry
 **How I verified no conflict remains:**
 Ran pytest tests/ -v (7/7 passed) and confirmed git log --oneline --merges origin/main..HEAD shows no merge commits.
 
+## Commit History
+
+![git log --oneline showing rewritten conventional commits](commit-history.png)
+
+Note: this screenshot is plain `git log --oneline` with no range, so it also shows commits inherited from `main` (including `bbe206c Merge pull request #2...`, which is part of main's own shared history, not a merge introduced by this branch). My own commits — from `84622dd` through the tip — are linear with no merge commits among them, which is what `git log --oneline --merges origin/main..HEAD` (blank output) confirms above.
+
 ## PR Description
 
 ### What this feature does
