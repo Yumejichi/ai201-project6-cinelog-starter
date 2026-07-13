@@ -36,18 +36,18 @@ We need to take care and consider more when implement the features due to it's p
 
 ## Comment 5 — Sort order
 **My position:**
-The newerest first should ne persist
-
 **Reasoning:**
-Most users see latest filmes they watched more impoertant and it can be better when we want to use this as future additional features such as recommending films.
-
 **Engagement with reviewer's point:**
-I agree with current date-added as the order for sorting.
 
 ## Comment 6 — Rebase
 **What conflicted:**
+Only .gitignore showed as a textual conflict (add/add — I and main independently created one). The real problem — main's refactor commit deleting the WatchlistEntry class entirely — never showed as a conflict at all, because none of my commits' diffs touched those same lines (the class was created in the very first shared commit, so my later commits never "added" it explicitly).
+
 **How I resolved it:**
+Merged .gitignore by combining both lists. Then manually re-added WatchlistEntry to models.py post-rebase with film_id as db.String(36) (UUID) to match Film.id, added the missing Film.watchlist_entries relationship, and updated stale "integer"/pre-refactor references in docstrings.
+
 **How I verified no conflict remains:**
+Ran pytest tests/ -v (7/7 passed) and confirmed git log --oneline --merges origin/main..HEAD shows no merge commits.
 
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->
