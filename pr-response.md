@@ -36,8 +36,13 @@ We need to take care and consider more when implement the features due to it's p
 
 ## Comment 5 — Sort order
 **My position:**
+The newerest first should ne persist
+
 **Reasoning:**
+Most users see will be willing to watch the latest film they added, so using the date_added sounds a solid logic.
+
 **Engagement with reviewer's point:**
+I agree with sorting by date_added would be better since a user would like to watch the films they adeed most recently.
 
 ## Comment 6 — Rebase
 **What conflicted:**
