@@ -1,7 +1,18 @@
 # PR Response Doc — CineLog Watchlist Feature
 
 ## AI Usage
-<!-- Fill in at the end — how you used AI tools during this project -->
+
+I used Claude (Claude Code) throughout this project in a few specific ways:
+
+- **Codebase orientation (Milestone 1):** Before looking at any review comments, I asked Claude to summarize `models.py` and `collection_service.py` and to walk through what `add_to_collection()` does step by step, including what it returns when `film_id` doesn't exist. This helped me recognize the `verb_to_noun` naming pattern and the dedup-check pattern before I read Comments 1 and 2, so I understood why the reviewer was asking for them.
+
+- **Locating the real review comments:** My fork didn't show the PR (forking doesn't copy pull requests), so Claude used the GitHub CLI to find the upstream template PR and pull the exact text of all six `@dev-lead` comments, including the wording for Comment 5 ("Most users want to see what they added recently... I'm open to discussion if you see it differently"). I used that exact quote to write my Comment 5 response instead of guessing at the reviewer's reasoning.
+
+- **Stress-testing Comments 4 and 5 (devil's advocate):** After I wrote my own first drafts, I asked Claude what counterargument a careful reviewer would raise against each position. For Comment 4, it pointed out that "not sensitive information" doesn't account for a watchlist revealing a pattern of interest over time, and that public-by-default and private-by-default aren't symmetric risks. For Comment 5, it caught that my first draft said "most recently watched" when the watchlist is about films not yet watched, and pointed out my "engagement" section was just restating agreement rather than responding to the reviewer's actual words. I rewrote both after that.
+
+- **Debugging the rebase (Comment 6):** When my rebase made `WatchlistEntry` disappear from `models.py` with no conflict shown, I asked Claude to explain why. It traced the git history and showed that main's refactor commit had deleted the class outright, and since none of my own commits' diffs touched those same lines, git never saw a dispute to flag. I relied on that explanation to manually restore the model afterward.
+
+I did not ask Claude to write the Comment 4 or Comment 5 reasoning itself — in both cases I wrote my own position first and used AI to find gaps or verify facts afterward.
 
 ## Comment 1 — Rename
 **What I did:**
@@ -55,4 +66,34 @@ Merged .gitignore by combining both lists. Then manually re-added WatchlistEntry
 Ran pytest tests/ -v (7/7 passed) and confirmed git log --oneline --merges origin/main..HEAD shows no merge commits.
 
 ## PR Description
-<!-- Written at the end — feature overview, design decisions, manual testing steps -->
+
+### What this feature does
+
+Adds a watchlist to CineLog so users can save films they want to watch later, separate from their collection of films they've already watched. It introduces a `WatchlistEntry` model and two endpoints:
+
+- `GET /watchlist/<user_id>` — returns the user's watchlist, sorted with the most recently added film first.
+- `POST /watchlist/<user_id>/add` — adds a film to a user's watchlist. Body: `{ "film_id": "<uuid>" }`. Returns `404`-equivalent errors (`FilmNotFoundError`) if the film doesn't exist, and rejects duplicate entries (`AlreadyInWatchlistError`) instead of silently creating a second row.
+
+### Design decisions
+
+- **Default visibility (Comment 4):** Watchlist entries default to `public=True`. See Comment 4 above for the full reasoning and tradeoff.
+- **Sort order (Comment 5):** `get_watchlist()` sorts by `date_added` descending (most recently added film first), rather than alphabetically. See Comment 5 above for the full reasoning.
+
+### How to test this manually
+
+1. Start the app: `python app.py`
+2. Create a user and a film (or use existing seed data / the `/films/` endpoint).
+3. Add a film to a user's watchlist:
+   ```bash
+   curl -X POST http://localhost:5000/watchlist/<user_id>/add \
+     -H "Content-Type: application/json" \
+     -d '{"film_id": "<film_id>"}'
+   ```
+4. View the watchlist and confirm the film appears:
+   ```bash
+   curl http://localhost:5000/watchlist/<user_id>
+   ```
+5. Add a second film and confirm it appears **first** in the list (newest-added-first ordering).
+6. Try adding the same film again and confirm you get an "already in watchlist" error instead of a duplicate row.
+7. Try adding a nonexistent `film_id` and confirm you get a "film not found" error.
+8. Run the automated test suite: `pytest tests/ -v` — all 8 tests should pass.
