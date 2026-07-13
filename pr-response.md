@@ -23,7 +23,7 @@ Searched all save_to_watchlist() in the folder and changed the corresponding fun
 
 ## Comment 2 — Deduplication
 **What I did:**
-Add a duplicaate check logic in add_to_watchlist() in services/watchlist_service.py and a new AlreadyInWatchlistError in collection_service.py
+Looked at how add_to_collection() in services/collection_service.py handles this case before writing my own version: it queries for an existing entry matching the same user_id and film_id, and raises a specific error instead of letting a duplicate row get created or a database integrity error surface. I followed the same pattern in add_to_watchlist() — query WatchlistEntry.query.filter_by(user_id=..., film_id=...).first() before creating the new entry, and raise a new AlreadyInWatchlistError (added to collection_service.py) if a match is found.
 
 **How I verified:**
 Ran the app to see if the app rans correctly and ran the pytest tests/ -v to check nothing breaks.
